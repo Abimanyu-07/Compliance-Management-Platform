@@ -1,0 +1,59 @@
+{
+  "disclaimer": "Authorities listed for prototype routing only. Verify the current official channel before applying.",
+  "authorities": [
+    {
+      "name": "Goods and Services Tax Network",
+      "application_method": "Online",
+      "official_portal": "https://www.gst.gov.in",
+      "portal_status": "VERIFIED_OFFICIAL_URL"
+    },
+    {
+      "name": "Ministry of Corporate Affairs",
+      "application_method": "Online",
+      "official_portal": "https://www.mca.gov.in",
+      "portal_status": "VERIFIED_OFFICIAL_URL"
+    },
+    {
+      "name": "Tamil Nadu Pollution Control Board",
+      "application_method": "Online",
+      "official_portal": null,
+      "portal_status": "VERIFY_BEFORE_USE"
+    },
+    {
+      "name": "Directorate of Industrial Safety and Health, Tamil Nadu",
+      "application_method": "Online",
+      "official_portal": null,
+      "portal_status": "VERIFY_BEFORE_USE"
+    },
+    {
+      "name": "Tamil Nadu Fire and Rescue Services",
+      "application_method": "Online",
+      "official_portal": null,
+      "portal_status": "VERIFY_BEFORE_USE"
+    },
+    {
+      "name": "Coimbatore City Municipal Corporation",
+      "application_method": "Online",
+      "official_portal": null,
+      "portal_status": "VERIFY_BEFORE_USE"
+    },
+    {
+      "name": "Food Safety and Standards Authority of India",
+      "application_method": "Online",
+      "official_portal": "https://foscos.fssai.gov.in",
+      "portal_status": "VERIFIED_OFFICIAL_URL"
+    },
+    {
+      "name": "Ministry of Micro, Small and Medium Enterprises",
+      "application_method": "Online",
+      "official_portal": "https://udyamregistration.gov.in",
+      "portal_status": "VERIFIED_OFFICIAL_URL"
+    },
+    {
+      "name": "Employees' State Insurance Corporation",
+      "application_method": "Online",
+      "official_portal": "https://www.esic.gov.in",
+      "portal_status": "VERIFIED_OFFICIAL_URL"
+    }
+  ]
+}

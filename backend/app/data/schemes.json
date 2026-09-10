@@ -1,0 +1,41 @@
+{
+  "disclaimer": "Prototype incentive catalogue. Matches are Potential Match only — not verified eligibility.",
+  "schemes": [
+    {
+      "name": "Manufacturing Support Program",
+      "description": "Prototype state manufacturing facilitation support for new units.",
+      "sector": "Food Manufacturing",
+      "state": "Tamil Nadu",
+      "business_size": "Small",
+      "benefits": "Prototype benefit description: facilitation support and capital subsidy information (verify on official portal).",
+      "eligibility": "Potential Match for manufacturing units starting operations in Tamil Nadu.",
+      "min_investment": 1000000,
+      "max_investment": 50000000,
+      "stage": "Starting Business"
+    },
+    {
+      "name": "MSME Formalisation Support",
+      "description": "Prototype MSME onboarding / formalisation guidance scheme.",
+      "sector": "All",
+      "state": "All",
+      "business_size": "Micro/Small",
+      "benefits": "Prototype benefit description: registration facilitation and awareness support.",
+      "eligibility": "Potential Match for units that can register on Udyam.",
+      "min_investment": 0,
+      "max_investment": 100000000,
+      "stage": "Starting Business"
+    },
+    {
+      "name": "Food Processing Enablement Track",
+      "description": "Prototype food processing enablement information track.",
+      "sector": "Food Manufacturing",
+      "state": "All",
+      "business_size": "Small",
+      "benefits": "Prototype benefit description: cluster and quality-related support information.",
+      "eligibility": "Potential Match for food manufacturing businesses.",
+      "min_investment": 500000,
+      "max_investment": null,
+      "stage": "Starting Business"
+    }
+  ]
+}
