@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-sans: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+    
+    /* Dayflow Corporate Palette Tokens */
+    --background: 210 40% 98%; /* #f8fafc */
+    --foreground: 222 47% 11%; /* #0f172a */
+
+    --card: 0 0% 100%; /* #ffffff */
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 222 47% 11%; /* Deep navy slate-900 #0f172a */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 214 32% 91%; /* #e2e8f0 */
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 210 40% 96.1%; /* #f1f5f9 */
+    --muted-foreground: 215 16% 47%; /* #64748b */
+
+    --accent: 217 91% 60%; /* #2563eb */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%; /* #ef4444 */
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214 32% 91%; /* #e2e8f0 */
+    --input: 214 32% 91%;
+    --ring: 222 47% 11%;
+
+    --radius: 0.5rem;
+  }
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #f8fafc;
+  color: #0f172a;
+  min-height: 100vh;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Glass & Card subtle shadows */
+.dayflow-card-shadow {
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
+}
+
+.dayflow-panel-gradient {
+  background: linear-gradient(145deg, #0f172a 0%, #1e293b 50%, #0f2942 100%);
+}
+
+.dayflow-glow-subtle {
+  box-shadow: 0 0 40px -10px rgba(37, 99, 235, 0.15);
+}
