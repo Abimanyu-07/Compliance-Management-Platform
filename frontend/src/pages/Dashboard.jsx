@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import {
   CheckCircle2,
   AlertCircle,
@@ -23,6 +24,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const {
     activeBusiness,
     approvals,
@@ -76,7 +78,14 @@ const Dashboard = () => {
               <Sparkles className="h-3.5 w-3.5" />
               <span>AI Compliance Assistant Active</span>
             </div>
-            <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight">Good afternoon, Arun</h1>
+            <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight">
+              {(() => {
+                const hour = new Date().getHours();
+                const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+                const firstName = user?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'Enterprise User';
+                return `${greeting}, ${firstName}`;
+              })()}
+            </h1>
             <p className="text-slate-300 text-sm mt-1">
               Here's your current business compliance overview for <strong className="text-white">{activeBusiness?.name}</strong>.
             </p>

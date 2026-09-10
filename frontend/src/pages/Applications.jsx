@@ -19,7 +19,7 @@ const Applications = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
 
-  const selectedApp = applications.find(a => a.id === selectedAppId) || null;
+  const selectedApp = applications.find(a => String(a.id) === String(selectedAppId) || String(a.raw_id) === String(selectedAppId)) || null;
 
   const filteredApps = applications.filter(app => {
     const matchesSearch = app.approvalName.toLowerCase().includes(searchQuery.toLowerCase()) ||

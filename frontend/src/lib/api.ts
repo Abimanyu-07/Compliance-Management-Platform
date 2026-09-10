@@ -1,13 +1,24 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
-// In-memory access token storage (Security requirement: NOT in localStorage/sessionStorage)
-let inMemoryAccessToken: string | null = null;
+// Access token storage with localStorage persistence
+const TOKEN_KEY = 'innovx_auth_token';
+let inMemoryAccessToken: string | null = typeof window !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null;
 
 export const setAccessToken = (token: string | null) => {
   inMemoryAccessToken = token;
+  if (typeof window !== 'undefined') {
+    if (token) {
+      localStorage.setItem(TOKEN_KEY, token);
+    } else {
+      localStorage.removeItem(TOKEN_KEY);
+    }
+  }
 };
 
 export const getAccessToken = (): string | null => {
+  if (!inMemoryAccessToken && typeof window !== 'undefined') {
+    inMemoryAccessToken = localStorage.getItem(TOKEN_KEY);
+  }
   return inMemoryAccessToken;
 };
 
@@ -21,11 +32,12 @@ export const api = axios.create({
   withCredentials: true, // Crucial for sending & receiving HTTP-only refresh cookies
 });
 
-// Request interceptor: attach in-memory access token
+// Request interceptor: attach access token
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    if (inMemoryAccessToken && config.headers) {
-      config.headers.Authorization = `Bearer ${inMemoryAccessToken}`;
+    const token = getAccessToken();
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },

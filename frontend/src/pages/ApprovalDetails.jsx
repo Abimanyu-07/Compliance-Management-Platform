@@ -22,14 +22,28 @@ const ApprovalDetails = () => {
   const navigate = useNavigate();
   const { approvals, documents, handleUploadDocument } = useApp();
 
-  // Find approval by ID or fallback to Pollution Consent (app-2)
-  const approval = approvals.find(a => a.id === id) || approvals[1];
+  // Find approval by ID or requirement ID or fallback
+  const approval =
+    approvals.find((a) => String(a.id) === String(id) || String(a.requirement_id) === String(id)) ||
+    approvals[0] || {
+      name: 'Approval Requirement',
+      category: 'General',
+      authorityFull: 'Government Regulatory Authority',
+      status: 'Ready to Apply',
+      fee: '₹5,000',
+      estimatedTime: '10-15 Days',
+      officialPortal: 'https://tnpcbonline.tn.gov.in/',
+      applicationMethod: 'Online Portal',
+      requiredDocs: ['Business Registration Certificate', 'Address Proof', 'Land Document', 'Project Report'],
+      missingDocs: [],
+      completedDocs: ['Business Registration Certificate', 'Address Proof'],
+    };
 
-  const isProjectReportUploaded = documents.find(d => d.id === 'doc-4')?.status === 'Verified';
+  const isProjectReportUploaded = documents.find((d) => d.name?.includes('Project_Report') || d.id === 'doc-4')?.status === 'Verified';
 
   // Check documents for this approval
-  const reqDocs = approval.requiredDocs || [];
-  const completedCount = approval.completedDocs?.length || 0;
+  const reqDocs = approval.requiredDocs || ['Business Registration Certificate', 'Address Proof', 'Land Document', 'Project Report'];
+  const completedCount = approval.completedDocs?.length || 2;
   const isMissingDocs = approval.missingDocs?.length > 0;
 
   return (

@@ -17,9 +17,9 @@ import {
 
 const AIRecommendations = () => {
   const navigate = useNavigate();
-  const { handleUploadDocument, documents } = useApp();
+  const { handleUploadDocument, documents, askCopilot, isApiConnected, activeBusiness } = useApp();
 
-  const isProjectReportUploaded = documents.find(d => d.id === 'doc-4')?.status === 'Verified';
+  const isProjectReportUploaded = documents.find(d => d.id === 'doc-4' || d.name?.includes('Project_Report'))?.status === 'Verified';
 
   const defaultMessages = [
     {
@@ -39,10 +39,10 @@ Completing this document may also help prevent delays in dependent approvals lik
 Your next best action is to draft and prepare the Factory Licence plan approval on the Directorate of Industrial Safety & Health (DISH) portal.`,
       actions: !isProjectReportUploaded ? [
         { label: 'Upload Document', icon: UploadCloud, type: 'upload' },
-        { label: 'View Application', icon: ArrowRight, type: 'nav', path: '/approvals/app-2' },
+        { label: 'View Application', icon: ArrowRight, type: 'nav', path: '/approvals/3' },
         { label: 'View Dependencies', icon: GitFork, type: 'nav', path: '/dependencies' }
       ] : [
-        { label: 'View Factory Licence', icon: ArrowRight, type: 'nav', path: '/approvals/app-3' },
+        { label: 'View Factory Licence', icon: ArrowRight, type: 'nav', path: '/approvals/4' },
         { label: 'View Dependencies', icon: GitFork, type: 'nav', path: '/dependencies' }
       ]
     }
@@ -60,7 +60,7 @@ Your next best action is to draft and prepare the Factory Licence plan approval 
     "Which renewal is due next?"
   ];
 
-  const handleSendMessage = (textToSend) => {
+  const handleSendMessage = async (textToSend) => {
     const q = textToSend || inputQuery;
     if (!q.trim()) return;
 
@@ -70,33 +70,63 @@ Your next best action is to draft and prepare the Factory Licence plan approval 
     setInputQuery('');
     setIsTyping(true);
 
+    try {
+      // 1. Try real FastAPI copilot
+      const apiResult = await askCopilot(q);
+      if (apiResult?.answer) {
+        const actions = (apiResult.suggested_actions || []).map((label) => {
+          let path = '/approvals';
+          let icon = ArrowRight;
+          let type = 'nav';
+
+          const l = label.toLowerCase();
+          if (l.includes('upload') || l.includes('document')) {
+            type = 'upload';
+            icon = UploadCloud;
+          } else if (l.includes('dependenc')) {
+            path = '/dependencies';
+            icon = GitFork;
+          } else if (l.includes('risk') || l.includes('factor')) {
+            path = '/risk';
+            icon = AlertTriangle;
+          } else if (l.includes('dashboard')) {
+            path = '/dashboard';
+            icon = ArrowRight;
+          } else if (l.includes('incentive') || l.includes('scheme')) {
+            path = '/incentives';
+            icon = ArrowRight;
+          } else if (l.includes('where') || l.includes('portal') || l.includes('apply')) {
+            path = apiResult.related_requirement_id ? `/approvals/${apiResult.related_requirement_id}` : '/approvals';
+            icon = ExternalLink;
+          }
+
+          return { label, icon, type, path };
+        });
+
+        setMessages(prev => [...prev, { sender: 'ai', text: apiResult.answer, actions }]);
+        return;
+      }
+    } catch (err) {
+      console.warn('FastAPI copilot call fallback', err);
+    } finally {
+      setIsTyping(false);
+    }
+
+    // Local fallback
     setTimeout(() => {
       let aiReplyText = "";
       let aiActions = [];
-
       const queryLower = q.toLowerCase();
 
       if (queryLower.includes('approval') || queryLower.includes('need')) {
-        aiReplyText = `Based on your profile (Arun Manufacturing Pvt. Ltd. • Food Manufacturing • Coimbatore, TN), InnovX identified 12 statutory requirements across 5 categories:
-
-1. GST Registration (Tax - Approved)
-2. Pollution Consent CTO (Environmental - Action Required)
-3. Factory Licence (Industrial - Ready to Apply)
-4. Fire NOC (Safety - Not Started)
-5. FSSAI Food License (Food Safety - Approved)
-6. Commercial Power Sanction (Utility - Under Review)`;
+        aiReplyText = `Based on your profile (${activeBusiness?.name} • ${activeBusiness?.industry} • ${activeBusiness?.location}), InnovX identified statutory requirements across categories:\n\n1. GST Registration (Tax - Approved)\n2. Pollution Consent CTO (Environmental - Action Required)\n3. Factory Licence (Industrial - Ready to Apply)\n4. Fire NOC (Safety - Not Started)\n5. FSSAI Food License (Food Safety - Approved)`;
         aiActions = [{ label: 'View All Approvals', icon: ArrowRight, type: 'nav', path: '/approvals' }];
       } else if (queryLower.includes('where') || queryLower.includes('apply')) {
-        aiReplyText = `InnovX provides direct 'Where-to-Apply' guidance for all Tamil Nadu state departments:
-
-• Pollution Consent: Tamil Nadu Pollution Control Board (tnpcbonline.tn.gov.in)
-• Factory Licence: Directorate of Industrial Safety and Health (dish.tn.gov.in)
-• Fire NOC: Tamil Nadu Fire and Rescue Services (tnfrs.tn.gov.in)
-• GST Registration: Official GST Portal (gst.gov.in)`;
-        aiActions = [{ label: 'Open Where-to-Apply Guide', icon: ExternalLink, type: 'nav', path: '/approvals/app-2' }];
+        aiReplyText = `InnovX provides direct 'Where-to-Apply' guidance:\n\n• Pollution Consent: Tamil Nadu Pollution Control Board (tnpcbonline.tn.gov.in)\n• Factory Licence: Directorate of Industrial Safety and Health (dish.tn.gov.in)\n• Fire NOC: Tamil Nadu Fire and Rescue Services (tnfrs.tn.gov.in)\n• GST Registration: Official GST Portal (gst.gov.in)`;
+        aiActions = [{ label: 'Open Where-to-Apply Guide', icon: ExternalLink, type: 'nav', path: '/approvals' }];
       } else if (queryLower.includes('missing') || queryLower.includes('document')) {
         aiReplyText = !isProjectReportUploaded 
-          ? `Currently, 1 document is missing: Project_Report.pdf required for TNPCB Pollution Consent. All other 5 core documents are verified.`
+          ? `Currently, 1 document is missing: Project_Report.pdf required for TNPCB Pollution Consent. All other core documents are verified.`
           : `All required core documents are currently verified and passed by AI scrutiny.`;
         aiActions = [{ label: 'Go to Documents', icon: UploadCloud, type: 'nav', path: '/documents' }];
       } else if (queryLower.includes('delay') || queryLower.includes('causing')) {
@@ -104,16 +134,13 @@ Your next best action is to draft and prepare the Factory Licence plan approval 
           ? `The primary delay bottleneck is the missing Project Report on the Pollution Consent application. Resolving this will clear scrutiny for downstream permits.`
           : `There are currently no high-risk delay bottlenecks active on your account.`;
         aiActions = [{ label: 'View Risk Intelligence', icon: AlertTriangle, type: 'nav', path: '/risk' }];
-      } else if (queryLower.includes('renewal') || queryLower.includes('next')) {
-        aiReplyText = `Your nearest deadline is Pollution Consent Scrutiny on 18 Sep 2026, followed by Factory Licence target filing on 24 Sep 2026.`;
-        aiActions = [{ label: 'View Tracker', icon: ArrowRight, type: 'nav', path: '/applications' }];
       } else {
-        aiReplyText = `I have analyzed your business profile and compliance tree. Everything is set up for your food manufacturing unit in Coimbatore. What specific department permit or checklist would you like to verify?`;
+        aiReplyText = `I have analyzed your business profile and compliance tree for ${activeBusiness?.name}. What specific department permit or checklist would you like to verify?`;
       }
 
       setMessages(prev => [...prev, { sender: 'ai', text: aiReplyText, actions: aiActions }]);
       setIsTyping(false);
-    }, 600);
+    }, 400);
   };
 
   const handleActionClick = (action) => {

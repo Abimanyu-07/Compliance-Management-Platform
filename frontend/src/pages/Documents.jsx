@@ -18,21 +18,34 @@ const Documents = () => {
   const { documents, handleUploadDocument } = useApp();
   const fileInputRef = useRef(null);
 
-  const [selectedDoc, setSelectedDoc] = useState(documents[0]);
+  const [selectedDoc, setSelectedDoc] = useState(documents[0] || null);
   const [isSimulatingUpload, setIsSimulatingUpload] = useState(false);
 
-  const handleFileChange = (e) => {
+  // Sync selectedDoc when documents list updates
+  React.useEffect(() => {
+    if (documents.length > 0) {
+      if (!selectedDoc || !documents.some(d => d.id === selectedDoc.id)) {
+        setSelectedDoc(documents[0]);
+      } else {
+        const found = documents.find(d => d.id === selectedDoc.id);
+        if (found) setSelectedDoc(found);
+      }
+    }
+  }, [documents]);
+
+  const handleFileChange = async (e) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       setIsSimulatingUpload(true);
-      setTimeout(() => {
-        handleUploadDocument(file.name, 'Pollution Consent (CTO)');
+      try {
+        await handleUploadDocument(file, 'Pollution Consent (CTO)');
+      } finally {
         setIsSimulatingUpload(false);
-      }, 800);
+      }
     }
   };
 
-  const projectReportDoc = documents.find(d => d.id === 'doc-4');
+  const projectReportDoc = documents.find(d => d.name?.includes('Project_Report') || d.id === 'doc-4');
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">

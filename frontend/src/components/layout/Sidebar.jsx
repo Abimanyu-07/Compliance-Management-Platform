@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../context/AuthContext';
 import BusinessSwitcher from '../business/BusinessSwitcher';
 import AddBusinessModal from '../business/AddBusinessModal';
 import {
@@ -22,7 +23,20 @@ import {
 const Sidebar = ({ mobileOpen, setMobileOpen }) => {
   const navigate = useNavigate();
   const { approvals, applications, documents } = useApp();
+  const { user, logout } = useAuth();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  const getInitials = (name, email) => {
+    if (name && name.trim()) {
+      const parts = name.trim().split(/\s+/);
+      if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+      return parts[0].substring(0, 2).toUpperCase();
+    }
+    if (email) return email.substring(0, 2).toUpperCase();
+    return 'U';
+  };
+
+  const userInitials = getInitials(user?.full_name, user?.email);
 
   const actionRequiredDocsCount = documents.filter(d => d.status === 'Missing').length;
 
@@ -138,30 +152,41 @@ const Sidebar = ({ mobileOpen, setMobileOpen }) => {
         {/* Bottom Profile Footer */}
         <div className="p-4 border-t border-slate-800 bg-slate-950/40">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="relative">
-                <div className="h-9 w-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-white font-semibold text-sm">
-                  AA
+            <div 
+              onClick={() => navigate('/business')}
+              className="flex items-center space-x-3 cursor-pointer group flex-1 min-w-0 mr-2"
+              title="View Business Profile"
+            >
+              <div className="relative shrink-0">
+                <div className="h-9 w-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-white font-semibold text-xs group-hover:border-blue-500 transition">
+                  {userInitials}
                 </div>
                 <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 border-2 border-slate-900"></span>
               </div>
-              <div className="overflow-hidden">
-                <p className="text-xs font-semibold text-white truncate">Arun A</p>
-                <p className="text-[11px] text-slate-400 truncate">Business Owner</p>
+              <div className="overflow-hidden min-w-0">
+                <p className="text-xs font-semibold text-white truncate group-hover:text-blue-300 transition">
+                  {user?.full_name || 'Enterprise User'}
+                </p>
+                <p className="text-[11px] text-slate-400 truncate">
+                  {user?.email || 'user@innovx.com'}
+                </p>
               </div>
             </div>
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-1 shrink-0">
               <button 
                 onClick={() => navigate('/business')}
                 title="Business Settings"
-                className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition"
+                className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
               >
                 <Settings className="h-4 w-4" />
               </button>
               <button 
-                onClick={() => navigate('/login')}
-                title="Logout Demo"
-                className="p-1.5 rounded-md text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition"
+                onClick={() => {
+                  logout();
+                  navigate('/login');
+                }}
+                title="Sign Out"
+                className="p-1.5 rounded-md text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition cursor-pointer"
               >
                 <LogOut className="h-4 w-4" />
               </button>
