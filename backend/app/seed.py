@@ -13,8 +13,10 @@ from app.models import (
     Requirement,
     RequirementDocument,
     Scheme,
+    User,
 )
 from app.services.risk_engine import refresh_application
+from app.utils.security import hash_password
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
 
@@ -91,9 +93,8 @@ DEMO_STATUSES = {
 
 
 def seed_if_empty(db: Session) -> None:
-    if db.query(Requirement).first():
-        return
-    _seed_catalog(db)
+    if not db.query(Requirement).first():
+        _seed_catalog(db)
     _seed_demo_business(db)
 
 
@@ -139,18 +140,41 @@ def _seed_catalog(db: Session) -> None:
 
 
 def _seed_demo_business(db: Session) -> None:
-    business = Business(
-        name="Arun Manufacturing Pvt. Ltd.",
-        business_type="Private Limited Company",
-        sector="Food Manufacturing",
-        state="Tamil Nadu",
-        district="Coimbatore",
-        investment=5_000_000,
-        employees=25,
-        stage="Starting Business",
-    )
-    db.add(business)
-    db.flush()
+    user = db.query(User).filter(User.email == "arun@innovx-manufacturing.com").first()
+    if not user:
+        user = User(
+            email="arun@innovx-manufacturing.com",
+            full_name="Arun Kumar",
+            hashed_password=hash_password("password123"),
+            role="OWNER",
+            is_active=True,
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+    business = db.query(Business).filter(Business.name == "Arun Manufacturing Pvt. Ltd.").first()
+    if not business:
+        business = Business(
+            user_id=user.id,
+            name="Arun Manufacturing Pvt. Ltd.",
+            business_type="Private Limited Company",
+            sector="Food Manufacturing",
+            state="Tamil Nadu",
+            district="Coimbatore",
+            investment=5_000_000,
+            employees=25,
+            stage="Starting Business",
+        )
+        db.add(business)
+        db.flush()
+    elif business.user_id is None:
+        business.user_id = user.id
+        db.commit()
+
+    # If applications are already created for this business, we are done
+    if db.query(Application).filter(Application.business_id == business.id).first():
+        return
 
     reqs = db.query(Requirement).order_by(Requirement.id.asc()).all()
     now = datetime.utcnow()

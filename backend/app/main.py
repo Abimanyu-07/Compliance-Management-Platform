@@ -12,6 +12,7 @@ from app.database import Base, SessionLocal, engine
 from app.routers import (
     applications,
     approvals,
+    auth,
     business,
     copilot,
     dashboard,
@@ -93,6 +94,7 @@ async def unhandled(_: Request, exc: Exception):
     )
 
 
+app.include_router(auth.router)
 app.include_router(business.router)
 app.include_router(requirements.router)
 app.include_router(approvals.router)
@@ -121,6 +123,7 @@ def root():
     }
 
 
+@app.get("/api/health", tags=["Health"])
 @app.get("/health", tags=["Health"])
 def health():
     return {"success": True, "data": {"status": "ok"}, "message": "Healthy"}
