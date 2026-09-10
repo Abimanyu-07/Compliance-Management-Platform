@@ -20,6 +20,43 @@ class ErrorResponse(BaseModel):
     error: ErrorBody
 
 
+class UserRegister(BaseModel):
+    email: str = Field(..., examples=["user@innovx.com"])
+    password: str = Field(..., min_length=6, examples=["password123"])
+    full_name: str = Field(..., examples=["Arun Kumar"])
+    role: str = Field(default="OWNER")
+    # Optional business details to create on signup
+    company_name: Optional[str] = None
+    sector: Optional[str] = None
+    state: Optional[str] = None
+    district: Optional[str] = None
+    investment: Optional[float] = None
+    employees: Optional[int] = None
+    stage: Optional[str] = None
+
+
+class UserLogin(BaseModel):
+    email: str = Field(..., examples=["user@innovx.com"])
+    password: str = Field(..., examples=["password123"])
+
+
+class UserOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    email: str
+    full_name: str
+    role: str
+    is_active: bool
+    created_at: datetime
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserOut
+
+
 class BusinessBase(BaseModel):
     name: str = Field(..., examples=["Arun Manufacturing Pvt. Ltd."])
     business_type: str = Field(default="Private Limited Company")

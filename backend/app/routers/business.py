@@ -40,6 +40,17 @@ def create_business(payload: BusinessCreate, db: Session = Depends(get_db)):
     )
 
 
+@router.get("", summary="List all business profiles")
+def list_businesses(db: Session = Depends(get_db)):
+    businesses = db.query(Business).order_by(Business.id).all()
+    return ok(
+        {
+            "total": len(businesses),
+            "businesses": [serialize_business(b) for b in businesses],
+        }
+    )
+
+
 @router.get("/{business_id}", summary="Get business profile")
 def get_business(business_id: int, db: Session = Depends(get_db)):
     business = _get_business(db, business_id)

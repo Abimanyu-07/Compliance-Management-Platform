@@ -24,6 +24,17 @@ def test_create_business_validation_error(client):
     assert res["error"]["code"] == "VALIDATION_ERROR"
 
 
+def test_list_businesses_success(client):
+    """Test retrieving all business profiles."""
+    response = client.get("/api/business")
+    assert response.status_code == 200
+    res = response.json()
+    assert res["success"] is True
+    assert "businesses" in res["data"]
+    assert res["data"]["total"] >= 1
+    assert any(b["id"] == 1 for b in res["data"]["businesses"])
+
+
 def test_get_business_success(client):
     """Test retrieving an existing seeded business profile."""
     response = client.get("/api/business/1")

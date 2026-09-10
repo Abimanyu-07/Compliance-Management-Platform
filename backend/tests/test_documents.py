@@ -102,6 +102,17 @@ def test_validate_seeded_demo_document_fails(client):
     assert response.json()["error"]["code"] == "DOCUMENT_NOT_FILE"
 
 
+def test_list_documents_success(client):
+    """Test listing documents for all businesses or filtered by business_id."""
+    response = client.get("/api/documents?business_id=1")
+    assert response.status_code == 200
+    res = response.json()
+    assert res["success"] is True
+    assert "documents" in res["data"]
+    assert res["data"]["total"] >= 1
+    assert all(d["business_id"] == 1 for d in res["data"]["documents"])
+
+
 def test_get_document_metadata(client):
     """Test fetching document metadata by ID."""
     response = client.get("/api/documents/1")

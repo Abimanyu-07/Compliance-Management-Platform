@@ -23,6 +23,12 @@ MAX_UPLOAD_MB = int(os.getenv("MAX_UPLOAD_MB") or 10)
 
 
 def _public_document(doc: Document) -> dict:
+    val_res = None
+    if doc.validation_result:
+        try:
+            val_res = json.loads(doc.validation_result)
+        except json.JSONDecodeError:
+            val_res = doc.validation_result
     return {
         "id": doc.id,
         "filename": doc.original_filename,
@@ -30,10 +36,26 @@ def _public_document(doc: Document) -> dict:
         "document_type": doc.document_type,
         "status": doc.status,
         "validation_score": doc.validation_score,
+        "validation_result": val_res,
         "application_id": doc.application_id,
         "business_id": doc.business_id,
         "uploaded_at": doc.uploaded_at,
     }
+
+
+@router.get("", summary="List documents")
+def list_documents(business_id: int | None = None, db: Session = Depends(get_db)):
+    query = db.query(Document)
+    if business_id is not None:
+        query = query.filter(Document.business_id == business_id)
+    docs = query.order_by(Document.id.desc()).all()
+    return ok({"total": len(docs), "documents": [_public_document(d) for d in docs]})
+
+
+@router.get("/business/{business_id}", summary="List documents for a business")
+def list_business_documents(business_id: int, db: Session = Depends(get_db)):
+    docs = db.query(Document).filter(Document.business_id == business_id).order_by(Document.id.desc()).all()
+    return ok({"total": len(docs), "documents": [_public_document(d) for d in docs]})
 
 
 @router.post(
