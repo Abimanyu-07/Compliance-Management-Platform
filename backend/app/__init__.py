@@ -1,0 +1,1 @@
+"""InnovX backend application package."""

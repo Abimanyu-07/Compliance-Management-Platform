@@ -1,0 +1,20 @@
+{
+  "disclaimer": "Prototype sequencing only. Real statutory sequencing must be confirmed with the relevant authority.",
+  "dependencies": [
+    {
+      "requirement": "Factory Licence",
+      "depends_on": "Pollution Consent",
+      "description": "In this prototype, Factory Licence is sequenced after Pollution Consent."
+    },
+    {
+      "requirement": "Final Operational Clearance",
+      "depends_on": "Factory Licence",
+      "description": "In this prototype, operational clearance waits on Factory Licence."
+    },
+    {
+      "requirement": "Fire Safety NOC",
+      "depends_on": "Factory Licence",
+      "description": "Prototype sequencing: fire NOC is reviewed after factory premises licensing is in progress or complete."
+    }
+  ]
+}
